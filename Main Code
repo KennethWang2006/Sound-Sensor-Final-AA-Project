@@ -1,0 +1,60 @@
+import time
+import board
+import digitalio
+import analogio
+
+from analogio import AnalogIn
+from digitalio import DigitalInOut, Direction, Pull
+
+GreenLed = DigitalInOut(board.D7)
+RedLed = DigitalInOut(board.D6)
+GreenLed.direction = Direction.OUTPUT
+RedLed.direction = Direction.OUTPUT
+sound = analogio.AnalogIn(board.A1)
+
+THRESHOLD = 33500
+DELAY_SECONDS = 0.001
+Sample_Size = 100
+sound_count = 0
+#old_sound_value = 0
+
+raw_data = [0]*Sample_Size
+sound_data = [0]*Sample_Size
+
+
+elapsedTime = 0.0
+stop_collecting = False
+startTime = time.monotonic()
+currentTime = time.monotonic()
+
+raw_sound_value = sound.value
+raw_data.append(raw_sound_value)
+
+if(len(raw_data)>= Sample_Size):
+    for raw_sound_value in raw_data:
+
+        if(raw_sound_value > THRESHOLD):
+            current_sound_value = 1
+            sound_count += 1
+        else:
+            current_sound_value = 0
+
+        if sound_count < 50:
+            RedLed.value = False
+            GreenLed.value = True
+            time.sleep(2)
+        else:
+            RedLed.value = True
+            GreenLed.value = False
+            time.sleep(2)
+    #sound_data.append([row[0],sound_count])
+
+
+elapsedTime += currentTime - startTime 
+print(f'sound_count: {sound_count} lines.')
+
+start_time = currentTime
+raw_value = []
+
+#for row in sound_data:
+    #print("{0},{1}".format(row[0], row[1]))
